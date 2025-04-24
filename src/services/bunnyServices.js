@@ -1,0 +1,66 @@
+// services/bunnyService.js
+const { Console } = require("console");
+const { apiRequest } = require("../utils/apiHandler");
+const crypto = require("crypto");
+
+const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
+const VIDEO_LIBRARY_ID = process.env.BUNNY_VIDEO_LIBRARY_ID;
+const VIDEO_LIBRARY_NAME = process.env.BUNNY_VIDEO_LIBRARY_NAME;
+const SIGNING_KEY = process.env.BUNNY_SIGNING_KEY;
+
+exports.uploadVideo = async (title, fileBuffer, fileName) => {
+ // Log the file name for debugging
+
+ console.log(BUNNY_API_KEY, VIDEO_LIBRARY_ID, VIDEO_LIBRARY_NAME, SIGNING_KEY);
+  const createRes = await apiRequest(
+    `https://video.bunnycdn.com/library/${VIDEO_LIBRARY_ID}/videos`,
+    {
+      method: "POST",
+      headers: {
+        AccessKey: BUNNY_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title }),
+    }
+  );
+
+
+  const videoId = createRes.guid;
+  if (!videoId) {
+    throw new Error("Failed to create video in Bunny CDN.");
+  }
+
+  const uploadRes = await apiRequest(
+    `https://video.bunnycdn.com/library/${VIDEO_LIBRARY_ID}/videos/${videoId}`,
+    {
+      method: "PUT",
+      headers: {
+        AccessKey: BUNNY_API_KEY,
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": `attachment; filename="${fileName}"`,
+      },
+      body: fileBuffer,
+    }
+  );
+
+  console.log("Upload response:", uploadRes);
+
+  if (uploadRes.statusCode !== 200) {
+    throw new Error("Failed to upload video to Bunny CDN.");
+  }
+  return videoId;
+  
+};
+
+
+exports.generateSecureIframe = (videoId) => {
+  const expiry = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+  const rawString = SIGNING_KEY + videoId + expiry;
+
+  const token = crypto
+    .createHash("sha256")
+    .update(rawString)
+    .digest("hex"); // NOT base64url anymore
+
+  return `https://iframe.mediadelivery.net/embed/${VIDEO_LIBRARY_ID}/${videoId}?token=${token}&expires=${expiry}`;
+};
