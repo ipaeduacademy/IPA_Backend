@@ -2,14 +2,14 @@ const Joi = require('joi');
 
 const videoSchema = Joi.object({
   videoName: Joi.string().required(),
-  videoDiscription: Joi.string().required(),
+  videoDescription: Joi.string().required(),
   videoDuration: Joi.string().required(),
   videoId: Joi.string().required(),
 });
 
 const quizSchema = Joi.object({
   quizName: Joi.string().required(),
-  quizDiscription: Joi.string().required(),
+  quizDescription: Joi.string().required(),
   quizDuration: Joi.string().required(),
   quizLink: Joi.string().uri().required(),
 });
@@ -17,7 +17,7 @@ const quizSchema = Joi.object({
 const chapterSchema = Joi.object({
   CourseId: Joi.string().required(),
   ModuleName: Joi.string().required(),
-  ModuleDiscription: Joi.string().required(),
+  ModuleDescription: Joi.string().required(),
   ModuleDuration: Joi.string().required(),
   Videos: Joi.array().items(videoSchema).required(),
   quizes: Joi.array().items(quizSchema).required(),
@@ -25,7 +25,7 @@ const chapterSchema = Joi.object({
 
 const reviewSchema = Joi.object({
   userName: Joi.string().required(),
-  userDiscription: Joi.string().required(),
+  userDescription: Joi.string().required(),
   userRating: Joi.number().min(0).max(5).required(),
   timeStamp: Joi.date().required(),
 });
@@ -38,7 +38,7 @@ const courseSchema = Joi.object({
   courseThumbNail: Joi.string().required(),
   coursePrice: Joi.string().required(),
   introVideo: Joi.string().required(),
-  courseDiscription: Joi.string().required(),
+  courseDescription: Joi.string().required(),
   rating: Joi.number().min(0).max(5).default(0),
   Features: Joi.object({
     warchtime: Joi.string().required(),
