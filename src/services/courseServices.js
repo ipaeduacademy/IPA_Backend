@@ -1,14 +1,35 @@
 const { ObjectId } = require('mongodb');
 const db = require('../configs/dbConfigs').getDb();
+const { apiRequest } = require("../utils/apiHandler"); // Assuming you have a utility function for API requests
+const BUNNY_LIBRARY_ID = process.env.BUNNY_VIDEO_LIBRARY_ID;
+const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
 
 exports.createCourse = async (courseData) => {
+  // 1. Create a Collection in Bunny.net Library
+  const collection = await apiRequest(
+    `https://video.bunnycdn.com/library/${BUNNY_LIBRARY_ID}/collections`,
+    {
+      method: 'POST',
+      headers: {
+        AccessKey: BUNNY_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: courseData.courseName }),
+    }
+  );
   const courseToInsert = {
     ...courseData,
-    title: courseData.courseName, // Map courseName → title
+    title: courseData.courseName,
+    bunnyCollectionId: collection.guid, // Save the collection GUID
   };
 
   const result = await db.collection('courses').insertOne(courseToInsert);
-  return { message: 'Course created', courseId: result.insertedId };
+
+  return {
+    message: 'Course created',
+    courseId: result.insertedId,
+    bunnyCollectionId: collection.guid,
+  };
 };
 
 exports.getAllCourses = async (page = 1, limit = 10) => {
@@ -84,9 +105,6 @@ exports.addChapter = async (chapterData) => {
 };
 
 exports.updateChapter = async (chapterId, updatedData) => {
-
-  console.log(chapterId)
-
   const result = await db.collection('chapters').updateOne(
     { _id: ObjectId.createFromHexString(chapterId) },
     { $set: updatedData }
