@@ -27,6 +27,7 @@ exports.uploadVideo = async (title, fileBuffer, fileName,collectionId) => {
     }
   );
 
+  console.log("Create response:", createRes); // Log the response for debugging
 
   const videoId = createRes.guid;
   if (!videoId) {

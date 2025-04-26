@@ -35,9 +35,9 @@ const courseSchema = Joi.object({
   status: Joi.string().valid('draft','published','unpublished').required(),
   heading: Joi.string().required(),
   courseTopic: Joi.string().required(),
-  courseThumbNail: Joi.string().uri().required(),
+  courseThumbNail: Joi.string().required(),
   coursePrice: Joi.string().required(),
-  introVideo: Joi.string().uri().required(),
+  introVideo: Joi.string().required(),
   courseDiscription: Joi.string().required(),
   rating: Joi.number().min(0).max(5).default(0),
   Features: Joi.object({
