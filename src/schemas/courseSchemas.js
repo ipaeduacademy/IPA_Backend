@@ -41,7 +41,7 @@ const courseSchema = Joi.object({
   courseDescription: Joi.string().required(),
   rating: Joi.number().min(0).max(5).default(0),
   Features: Joi.object({
-    warchtime: Joi.string().required(),
+    watchTime: Joi.string().required(),
     chapters: Joi.string().required(),
     quizes: Joi.string().required(),
   }).required(),
