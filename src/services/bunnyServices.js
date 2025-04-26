@@ -1,17 +1,18 @@
 // services/bunnyService.js
-const { Console } = require("console");
 const { apiRequest } = require("../utils/apiHandler");
 const crypto = require("crypto");
 
 const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
 const VIDEO_LIBRARY_ID = process.env.BUNNY_VIDEO_LIBRARY_ID;
-const VIDEO_LIBRARY_NAME = process.env.BUNNY_VIDEO_LIBRARY_NAME;
 const SIGNING_KEY = process.env.BUNNY_SIGNING_KEY;
+const STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
+const BUNNY_STORAGE_API_KEY = process.env.BUNNY_STORAGE_API_KEY;
+const CDN_URL = process.env.BUNNY_CDN_URL;
 
 exports.uploadVideo = async (title, fileBuffer, fileName) => {
  // Log the file name for debugging
 
- console.log(BUNNY_API_KEY, VIDEO_LIBRARY_ID, VIDEO_LIBRARY_NAME, SIGNING_KEY);
+ 
   const createRes = await apiRequest(
     `https://video.bunnycdn.com/library/${VIDEO_LIBRARY_ID}/videos`,
     {
@@ -63,4 +64,27 @@ exports.generateSecureIframe = (videoId) => {
     .digest("hex"); // NOT base64url anymore
 
   return `https://iframe.mediadelivery.net/embed/${VIDEO_LIBRARY_ID}/${videoId}?token=${token}&expires=${expiry}`;
+};
+
+exports.uploadImageToBunny = async (file) => {
+  const uniqueFilename =`${Date.now()}-${file.originalname}`;
+
+  const url = `https://sg.storage.bunnycdn.com/${STORAGE_ZONE}/${uniqueFilename}`;
+  console.log(url); // Log the URL for debugging
+  try {
+    let res=await apiRequest(url, {
+      method: "PUT",
+      headers: {
+        AccessKey:BUNNY_STORAGE_API_KEY,
+        "Content-Type": file.mimetype,
+      },
+      body: file.buffer,
+    });
+    console.log("Upload response:", res); // Log the response for debugging
+    
+    return `${CDN_URL}/${uniqueFilename}`;
+  } catch (err) {
+    console.error("Upload failed:", err.message);
+    return false;
+  }
 };

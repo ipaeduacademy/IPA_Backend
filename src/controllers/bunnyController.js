@@ -24,3 +24,23 @@ exports.getIframe = (req, res) => {
     res.status(500).json({ error: "Failed to get iframe", details: err.message });
   }
 };
+
+exports.uploadImage = async (req, res) => {
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  try {
+    const url = await bunny.uploadImageToBunny(file);
+    if (url) {
+      return res.status(201).json({ message: "Image uploaded", url });
+    } else {
+      return res.status(500).json({ message: "Image upload failed" });
+    }
+  } catch (err) {
+    console.error("Image upload error:", err.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
