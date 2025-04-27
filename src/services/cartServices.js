@@ -19,13 +19,10 @@ exports.getCart = async ( token ) => {
         // console.log(users)
         let result = await Promise.all(
           users.cart.map(async (courseId) => {
-            console.log(courseId);
             const course = await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(courseId) });
             return course;
           })
         );
-        
-        console.log(result);
         return result;
         
 };
