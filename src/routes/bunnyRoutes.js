@@ -7,15 +7,16 @@ const { authenticate } = require('../middlewares/authMiddlewares');
 const bunnyController = require("../controllers/bunnyController");
 const { imageSchema } = require("../schemas/bunnySchemas");
 
-router.use(authenticate);
+
 const upload = multer(); // in-memory buffer
 
 
-router.post("/uploadVideo", upload.single("video"), bunnyController.upload);
-router.get("/iframe/:videoId", bunnyController.getIframe);
+router.post("/uploadVideo", authenticate,upload.single("video"), bunnyController.upload);
+router.get("/iframe/:videoId",authenticate, bunnyController.getIframe);
 
 router.post(
   "/upload-image",
+  authenticate,
   upload.single("file"),
   (req, res, next) => {
     if (req.file) {

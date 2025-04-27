@@ -32,7 +32,8 @@ exports.createCourse = async (courseData) => {
   };
 };
 
-exports.getAllCourses = async (page = 1, limit = 10) => {
+exports.getAllCourses = async (page, limit = 8) => {
+    console.log('Page:', page, 'Limit:', limit);
     const skip = (page - 1) * limit;
     const collection = db.collection('courses');
   
@@ -86,10 +87,6 @@ exports.getChaptersByCourseId = async (courseId) => {
   const chapters = await db.collection('chapters').find({
     CourseId: ObjectId.createFromHexString(courseId)
   }).toArray();
-
-  if (!chapters || chapters.length === 0) {
-    throw new Error('No chapters found for this course');
-  }
 
   return chapters;
 };

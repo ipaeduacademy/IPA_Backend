@@ -2,19 +2,21 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseControllers');
 const { validateBody } = require('../middlewares/validationMiddlewares');
-const { courseSchema,chapterSchema } = require('../schemas/courseSchemas');
+const { courseSchema, chapterSchema } = require('../schemas/courseSchemas');
 const { authenticate } = require('../middlewares/authMiddlewares');
 
-router.use(authenticate);
-router.post('/addCourse', validateBody(courseSchema), courseController.createCourse);
-router.get('/getCourses', courseController.getAllCourses);
+// Public route - no authentication
+router.get('/getCourses/:page', courseController.getAllCourses);
 router.get('/getCourse/:id', courseController.getCourseById);
-router.put('/updateCourse/:id', validateBody(courseSchema), courseController.updateCourse);
-router.delete('/deleteCourse/:id', courseController.deleteCourse);
+router.get('/getCourseData/:id', courseController.getCourseDataById);
 router.get('/chapter/course/:id', courseController.getChaptersByCourseId);
-router.post('/addChapter', validateBody(chapterSchema), courseController.addChapter);
-router.put('/updateChapter/:id', validateBody(chapterSchema), courseController.updateChapter);
-router.delete('/deleteChapter/:id', courseController.deleteChapter);
 
+// Protected routes - require authentication
+router.post('/addCourse', authenticate, validateBody(courseSchema), courseController.createCourse);
+router.put('/updateCourse/:id', authenticate, validateBody(courseSchema), courseController.updateCourse);
+router.delete('/deleteCourse/:id', authenticate, courseController.deleteCourse);
+router.post('/addChapter', authenticate, validateBody(chapterSchema), courseController.addChapter);
+router.put('/updateChapter/:id', authenticate, validateBody(chapterSchema), courseController.updateChapter);
+router.delete('/deleteChapter/:id', authenticate, courseController.deleteChapter);
 
 module.exports = router;

@@ -12,7 +12,8 @@ exports.createCourse = async (req, res, next) => {
 exports.getAllCourses = async (req, res, next) => {
     try {
       console.log("all courses called")
-      const page = parseInt(req.query.page) || 1;
+      console.log(req.params.page)
+      const page = parseInt(req.params.page) || 1;
       const result = await courseService.getAllCourses(page);
       res.status(200).json(result);
     } catch (err) {
@@ -26,6 +27,21 @@ exports.getCourseById = async (req, res, next) => {
     console.log(req.params.id);
     const result = await courseService.getCourseById(req.params.id);
     if (!result) return res.status(404).json({ message: 'Course not found' });
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getCourseDataById = async (req, res, next) => {
+  try {
+    console.log(req.params.id);
+    const courseData = await courseService.getCourseById(req.params.id);
+    const chapters = await courseService.getChaptersByCourseId(req.params.id);
+    const result = {
+      courseData: courseData,
+      chapters: chapters,
+    };
     res.status(200).json(result);
   } catch (err) {
     next(err);
