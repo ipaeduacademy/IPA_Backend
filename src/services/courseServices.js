@@ -47,7 +47,6 @@ exports.getMycourses = async(token)=>{
             { _id: ObjectId.createFromHexString(payload.userId) },
     );
 
-    console.log(payload.userId,users)
     if(!users.myCourses){
         return []
     }
@@ -58,10 +57,8 @@ exports.getMycourses = async(token)=>{
       return course;
       })
     );
-
+    
     return result;
-
-
 }
 
 exports.getAllCourses = async (page, limit = 8) => {
