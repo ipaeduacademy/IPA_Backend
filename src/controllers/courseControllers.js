@@ -11,8 +11,6 @@ exports.createCourse = async (req, res, next) => {
 
 exports.getAllCourses = async (req, res, next) => {
     try {
-      console.log("all courses called")
-      console.log(req.params.page)
       const page = parseInt(req.params.page) || 1;
       const result = await courseService.getAllCourses(page);
       res.status(200).json(result);
@@ -47,6 +45,20 @@ exports.getCourseDataById = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getMycourses = async (req,res,next)=>{
+  try{
+    const authHeader = req.headers.authorization; // Log the authorization header for debugging
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+    const token = authHeader.split(' ')[1];
+    const myCourses = await courseService.getMycourses(token)
+    res.status(200).json(myCourses)
+  }catch(err){
+    next(err)
+  }
+}
 
 exports.updateCourse = async (req, res, next) => {
   try {

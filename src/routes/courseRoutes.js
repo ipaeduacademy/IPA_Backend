@@ -9,9 +9,11 @@ const { authenticate } = require('../middlewares/authMiddlewares');
 router.get('/getCourses/:page', courseController.getAllCourses);
 router.get('/getCourse/:id', courseController.getCourseById);
 router.get('/getCourseData/:id', courseController.getCourseDataById);
-router.get('/chapter/course/:id', courseController.getChaptersByCourseId);
+
 
 // Protected routes - require authentication
+router.get('/myCourses',authenticate,courseController.getMycourses)
+router.get('/chapter/course/:id',authenticate,courseController.getChaptersByCourseId);
 router.post('/addCourse', authenticate, validateBody(courseSchema), courseController.createCourse);
 router.put('/updateCourse/:id', authenticate, validateBody(courseSchema), courseController.updateCourse);
 router.delete('/deleteCourse/:id', authenticate, courseController.deleteCourse);

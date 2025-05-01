@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongodb');
 const db = require('../configs/dbConfigs').getDb();
+const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../configs/envConfigs');
 
 exports.getCart = async ( token ) => {

@@ -1,6 +1,8 @@
 const { ObjectId } = require('mongodb');
 const db = require('../configs/dbConfigs').getDb();
 const { apiRequest } = require("../utils/apiHandler"); // Assuming you have a utility function for API requests
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../configs/envConfigs');
 const BUNNY_LIBRARY_ID = process.env.BUNNY_VIDEO_LIBRARY_ID;
 const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
 
@@ -31,6 +33,36 @@ exports.createCourse = async (courseData) => {
     bunnyCollectionId: collection.guid,
   };
 };
+
+exports.getMycourses = async(token)=>{
+  let payload; 
+  try {
+     payload = jwt.verify(token, JWT_SECRET);
+   
+   } catch (err) {
+     return { status: 400, data: { message: `Invalid or expired token ${err}` } };
+   }
+
+    let users=await db.collection('users').findOne(
+            { _id: ObjectId.createFromHexString(payload.userId) },
+    );
+
+    console.log(payload.userId,users)
+    if(!users.myCourses){
+        return []
+    }
+
+    let result = await Promise.all(
+      users?.myCourses?.map(async (obj) => {
+      const course = await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(obj.courseId) });
+      return course;
+      })
+    );
+
+    return result;
+
+
+}
 
 exports.getAllCourses = async (page, limit = 8) => {
     console.log('Page:', page, 'Limit:', limit);
