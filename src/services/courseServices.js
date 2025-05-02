@@ -113,10 +113,6 @@ exports.deleteCourse = async (id) => {
 };
 
 exports.getChaptersByCourseId = async (courseId, token) => {
-  const { JWT_SECRET } = require('../configs/env'); // or your env path
-  const db = require('../configs/dbConfigs').getDb();
-  const jwt = require('jsonwebtoken');
-  const { ObjectId } = require('mongodb');
 
   let payload;
 
