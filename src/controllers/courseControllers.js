@@ -81,13 +81,33 @@ exports.deleteCourse = async (req, res, next) => {
 exports.getChaptersByCourseId = async (req, res, next) => {
   try {
     const courseId = req.params.id;
-    const chapters = await courseService.getChaptersByCourseId(courseId);
+    const authHeader = req.headers.authorization;
 
-    res.status(200).json({ chapters });
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Missing or invalid Authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const result = await courseService.getChaptersByCourseId(courseId, token);
+
+    if (result.status === 401) {
+      return res.status(401).json({ message: result.message });
+    }
+
+    if (result.status === 403) {
+      return res.status(403).json({ message: result.message });
+    }
+
+    if (result.status === 404) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json({ chapters: result.data });
   } catch (err) {
     next(err);
   }
 };
+
 
 
 exports.addChapter = async (req, res, next) => {

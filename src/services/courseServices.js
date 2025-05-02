@@ -34,57 +34,58 @@ exports.createCourse = async (courseData) => {
   };
 };
 
-exports.getMycourses = async(token)=>{
-  let payload; 
+exports.getMycourses = async (token) => {
+  let payload;
   try {
-     payload = jwt.verify(token, JWT_SECRET);
-   
-   } catch (err) {
-     return { status: 400, data: { message: `Invalid or expired token ${err}` } };
-   }
+    payload = jwt.verify(token, JWT_SECRET);
 
-    let users=await db.collection('users').findOne(
-            { _id: ObjectId.createFromHexString(payload.userId) },
-    );
+  } catch (err) {
+    return { status: 400, data: { message: `Invalid or expired token ${err}` } };
+  }
 
-    if(!users.myCourses){
-        return []
-    }
+  let users = await db.collection('users').findOne(
+    { _id: ObjectId.createFromHexString(payload.userId) },
+  );
 
-    let result = await Promise.all(
-      users?.myCourses?.map(async (obj) => {
+  if (!users.myCourses) {
+    return []
+  }
+
+  let result = await Promise.all(
+    users?.myCourses?.map(async (obj) => {
       const course = await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(obj.courseId) });
       return course;
-      })
-    );
-    
-    return result;
+    })
+  );
+
+  return result;
+
+
 }
 
 exports.getAllCourses = async (page, limit = 8) => {
-    console.log('Page:', page, 'Limit:', limit);
-    const skip = (page - 1) * limit;
-    const collection = db.collection('courses');
-  
-    const total = await collection.countDocuments();
-    const courses = await collection.find().skip(skip).limit(limit).toArray();
-  
-    return {
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-      data: courses,
-    };
+  console.log('Page:', page, 'Limit:', limit);
+  const skip = (page - 1) * limit;
+  const collection = db.collection('courses');
+
+  const total = await collection.countDocuments();
+  const courses = await collection.find().skip(skip).limit(limit).toArray();
+
+  return {
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: courses,
+  };
 };
-  
 
 exports.getCourseById = async (id) => {
   return await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(id) });
 };
 
 exports.updateCourse = async (id, courseData) => {
-  
- const updatedCourse= await db.collection('courses').updateOne(
+
+  const updatedCourse = await db.collection('courses').updateOne(
     { _id: ObjectId.createFromHexString(id) },
     { $set: courseData }
   );
@@ -99,7 +100,7 @@ exports.updateCourse = async (id, courseData) => {
 };
 
 exports.deleteCourse = async (id) => {
-  const rs=await db.collection('courses').deleteOne({ _id: ObjectId.createFromHexString(id) });
+  const rs = await db.collection('courses').deleteOne({ _id: ObjectId.createFromHexString(id) });
 
   if (rs.deletedCount === 0) {
     throw new Error('Course not found');
@@ -111,14 +112,64 @@ exports.deleteCourse = async (id) => {
   return { message: 'Course deleted' };
 };
 
-exports.getChaptersByCourseId = async (courseId) => {
+exports.getChaptersByCourseId = async (courseId, token) => {
+  const { JWT_SECRET } = require('../configs/env'); // or your env path
   const db = require('../configs/dbConfigs').getDb();
+  const jwt = require('jsonwebtoken');
+  const { ObjectId } = require('mongodb');
+
+  let payload;
+
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+  } catch (err) {
+    return {
+      status: 401,
+      message: `Invalid or expired token: ${err.message}`,
+    };
+  }
+
+  const user = await db.collection('users').findOne(
+    { _id: new ObjectId(payload.userId) }
+  );
+
+  if (!user) {
+    return {
+      status: 404,
+      message: 'User not found',
+    };
+  }
+
+  const currentCourse = user.myCourses?.find(c => c.courseId === courseId);
+
+  if (!currentCourse) {
+    return {
+      status: 404,
+      message: 'Course not found in user profile',
+    };
+  }
+
+  const buyingDate = new Date(currentCourse.buyingDate);
+  const currentDate = new Date();
+  const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
+
+  if (currentDate - buyingDate > oneYearInMs) {
+    return {
+      status: 403,
+      message: 'Your course validity has expired',
+    };
+  }
+
   const chapters = await db.collection('chapters').find({
-    CourseId: ObjectId.createFromHexString(courseId)
+    CourseId: new ObjectId(courseId)
   }).toArray();
 
-  return chapters;
+  return {
+    status: 200,
+    data: chapters
+  };
 };
+
 
 
 exports.addChapter = async (chapterData) => {
