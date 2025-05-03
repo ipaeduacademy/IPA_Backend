@@ -14,6 +14,7 @@ router.get('/getCourseData/:id', courseController.getCourseDataById);
 // Protected routes - require authentication
 router.get('/myCourses',authenticate,courseController.getMycourses)
 router.get('/chapter/course/:id',authenticate,courseController.getChaptersByCourseId);
+router.get('/getVideos/:id',authenticate,courseController.getVideos);
 router.post('/addCourse', authenticate, validateBody(courseSchema), courseController.createCourse);
 router.put('/updateCourse/:id', authenticate, validateBody(courseSchema), courseController.updateCourse);
 router.delete('/deleteCourse/:id', authenticate, courseController.deleteCourse);

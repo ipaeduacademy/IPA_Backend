@@ -22,7 +22,6 @@ exports.getAllCourses = async (req, res, next) => {
 
 exports.getCourseById = async (req, res, next) => {
   try {
-    console.log(req.params.id);
     const result = await courseService.getCourseById(req.params.id);
     if (!result) return res.status(404).json({ message: 'Course not found' });
     res.status(200).json(result);
@@ -31,6 +30,29 @@ exports.getCourseById = async (req, res, next) => {
   }
 };
 
+exports.getVideos= async (req,res,next)=>{
+  try {
+    console.log(req.params.id);
+    const authHeader = req.headers.authorization; // Log the authorization header for debugging
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+    const token = authHeader.split(' ')[1];
+    const courseData = await courseService.getCourseById(req.params.id);
+    const chapters = await courseService.getChaptersByCourseId(req.params.id,token);
+    console.log(chapters)
+    const result = {
+      courseData: courseData,
+      chapters: chapters.data,
+    };
+    console.log(result)
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+
+}
+
 exports.getCourseDataById = async (req, res, next) => {
   try {
     console.log(req.params.id);
@@ -38,7 +60,7 @@ exports.getCourseDataById = async (req, res, next) => {
     const chapters = await courseService.getChapters(req.params.id);
     const result = {
       courseData: courseData,
-      chapters: chapters,
+      chapters: chapters.data,
     };
     res.status(200).json(result);
   } catch (err) {
