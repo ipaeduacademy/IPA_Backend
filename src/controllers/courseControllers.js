@@ -35,7 +35,7 @@ exports.getCourseDataById = async (req, res, next) => {
   try {
     console.log(req.params.id);
     const courseData = await courseService.getCourseById(req.params.id);
-    const chapters = await courseService.getChaptersByCourseId(req.params.id);
+    const chapters = await courseService.getChapters(req.params.id);
     const result = {
       courseData: courseData,
       chapters: chapters,

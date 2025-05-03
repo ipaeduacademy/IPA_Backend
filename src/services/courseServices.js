@@ -166,6 +166,35 @@ exports.getChaptersByCourseId = async (courseId, token) => {
   };
 };
 
+exports.getChapters = async (courseId) => {
+  const chapters = await db.collection('chapters').find({
+    CourseId: ObjectId.createFromHexString(courseId)
+  }).toArray();
+
+  const filteredChapters = chapters.map(chapter => ({
+    _id: chapter._id,
+    CourseId: chapter.CourseId,
+    ModuleName: chapter.ModuleName,
+    ModuleDescription: chapter.ModuleDescription,
+    ModuleDuration: chapter.ModuleDuration,
+    Videos: chapter.Videos?.map(video => ({
+      videoName: video.videoName,
+      videoDescription: video.videoDescription,
+      videoDuration: video.videoDuration
+    })) || [],
+    quizes: chapter.quizes?.map(quiz => ({
+      quizName: quiz.quizName,
+      quizDescription: quiz.quizDescription,
+      quizDuration: quiz.quizDuration
+    })) || []
+  }));
+
+  return {
+    status: 200,
+    data: filteredChapters
+  };
+};
+
 
 
 exports.addChapter = async (chapterData) => {
