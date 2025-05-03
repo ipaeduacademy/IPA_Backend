@@ -19,7 +19,6 @@ exports.getAllCourses = async (req, res, next) => {
     }
   };
   
-
 exports.getCourseById = async (req, res, next) => {
   try {
     const result = await courseService.getCourseById(req.params.id);
@@ -34,12 +33,17 @@ exports.getVideos= async (req,res,next)=>{
   try {
     console.log(req.params.id);
     const authHeader = req.headers.authorization; // Log the authorization header for debugging
+    
     if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Missing or invalid Authorization header' });
     }
+
     const token = authHeader.split(' ')[1];
     const courseData = await courseService.getCourseById(req.params.id);
     const chapters = await courseService.getChaptersByCourseId(req.params.id,token);
+    if(chapters.status===403){
+      res.status(403).json(chapters.message)
+    }
     console.log(chapters)
     const result = {
       courseData: courseData,

@@ -54,6 +54,7 @@ exports.getMycourses = async (token) => {
   let result = await Promise.all(
     users?.myCourses?.map(async (obj) => {
       const course = await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(obj.courseId) });
+      course.date= obj.buyingDate;
       return course;
     })
   );
