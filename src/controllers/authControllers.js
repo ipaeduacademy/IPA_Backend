@@ -30,3 +30,13 @@ exports.resetPassword = async (req, res, next) => {
     }
   };
   
+  exports.getUser = async(req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+  
+    const token = authHeader.split(' ')[1];
+    const response = await authService.getUser(token);
+    res.status(response.status).json(response.data);
+  }
