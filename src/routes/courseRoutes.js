@@ -2,14 +2,13 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseControllers');
 const { validateBody } = require('../middlewares/validationMiddlewares');
-const { courseSchema, chapterSchema } = require('../schemas/courseSchemas');
+const { courseSchema, chapterSchema ,AccessSchema} = require('../schemas/courseSchemas');
 const { authenticate } = require('../middlewares/authMiddlewares');
 
 // Public route - no authentication
 router.get('/getCourses/:page', courseController.getAllCourses);
 router.get('/getCourse/:id', courseController.getCourseById);
 router.get('/getCourseData/:id', courseController.getCourseDataById);
-
 
 // Protected routes - require authentication
 router.get('/myCourses',authenticate,courseController.getMycourses)
@@ -21,5 +20,6 @@ router.delete('/deleteCourse/:id', authenticate, courseController.deleteCourse);
 router.post('/addChapter', authenticate, validateBody(chapterSchema), courseController.addChapter);
 router.put('/updateChapter/:id', authenticate, validateBody(chapterSchema), courseController.updateChapter);
 router.delete('/deleteChapter/:id', authenticate, courseController.deleteChapter);
+router.post('/giveAccess', authenticate, validateBody(AccessSchema), courseController.giveAccess);
 
 module.exports = router;

@@ -47,4 +47,9 @@ const courseSchema = Joi.object({
   }).required(),
 });
 
-module.exports = { courseSchema,chapterSchema, reviewSchema };
+const AccessSchema = Joi.object({
+  courseId: Joi.string().required(),
+  userId: Joi.string().required(),
+});
+
+module.exports = { courseSchema,chapterSchema, reviewSchema ,AccessSchema};

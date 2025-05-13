@@ -6,6 +6,7 @@ const { JWT_SECRET } = require('../configs/envConfigs');
 const BUNNY_LIBRARY_ID = process.env.BUNNY_VIDEO_LIBRARY_ID;
 const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
 
+
 exports.createCourse = async (courseData) => {
   // 1. Create a Collection in Bunny.net Library
   const collection = await apiRequest(
@@ -196,8 +197,6 @@ exports.getChapters = async (courseId) => {
   };
 };
 
-
-
 exports.addChapter = async (chapterData) => {
   const result = await db.collection('chapters').insertOne({
     ...chapterData,
@@ -238,3 +237,42 @@ exports.deleteChapter = async (chapterId) => {
   }
   return { message: 'Chapter deleted', deletedCount: result.deletedCount };
 };
+
+
+
+
+
+exports.giveAccess = async (userId, courseId) => {
+  const userObjectId = ObjectId.createFromHexString(userId);
+
+  // Check if the user already has access to the course
+  const user = await db.collection('users').findOne({
+    _id: userObjectId,
+    'myCourses.courseId': courseId
+  });
+
+  if (user) {
+    // User already has access to the course
+    return { message: 'Access already granted' };
+  }
+
+  // Grant access to the course
+  const result = await db.collection('users').updateOne(
+    { _id: userObjectId },
+    {
+      $push: {
+        myCourses: {
+          courseId: courseId,
+          buyingDate: new Date(),
+        },
+      },
+    }
+  );
+
+  if (result.matchedCount === 0) {
+    throw new Error('User not found');
+  }
+
+  return { message: 'Access granted' };
+};
+

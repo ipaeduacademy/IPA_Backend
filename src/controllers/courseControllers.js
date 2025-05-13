@@ -134,8 +134,6 @@ exports.getChaptersByCourseId = async (req, res, next) => {
   }
 };
 
-
-
 exports.addChapter = async (req, res, next) => {
   try {
     const result = await courseService.addChapter(req.body);
@@ -162,3 +160,12 @@ exports.deleteChapter = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.giveAccess = async (req, res, next) => {
+  try {
+    const result = await courseService.giveAccess(req.body.userId, req.body.courseId);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
