@@ -10,6 +10,7 @@ const {
 
 const getChaptersController = asyncHandler(async (req, res) => {
     const courseId = req.params.courseId;
+    console.log(courseId);
     const chapterList = await getChapterListService(courseId);
     if (chapterList) {
         res.status(200).json({

@@ -242,12 +242,11 @@ exports.deleteChapter = async (chapterId) => {
 
 
 
-exports.giveAccess = async (userId, courseId) => {
-  const userObjectId = ObjectId.createFromHexString(userId);
+exports.giveAccess = async (email, courseId) => {
 
   // Check if the user already has access to the course
   const user = await db.collection('users').findOne({
-    _id: userObjectId,
+    email: email,
     'myCourses.courseId': courseId
   });
 
@@ -258,7 +257,7 @@ exports.giveAccess = async (userId, courseId) => {
 
   // Grant access to the course
   const result = await db.collection('users').updateOne(
-    { _id: userObjectId },
+    {email: email},
     {
       $push: {
         myCourses: {

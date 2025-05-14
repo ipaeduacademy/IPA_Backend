@@ -163,7 +163,7 @@ exports.deleteChapter = async (req, res, next) => {
 
 exports.giveAccess = async (req, res, next) => {
   try {
-    const result = await courseService.giveAccess(req.body.userId, req.body.courseId);
+    const result = await courseService.giveAccess(req.body.email, req.body.courseId);
     res.status(200).json(result);
   } catch (err) {
     next(err);

@@ -35,9 +35,9 @@ const courseSchema = Joi.object({
   status: Joi.string().valid('draft','published','unpublished').required(),
   heading: Joi.string().required(),
   courseTopic: Joi.string().required(),
-  courseThumbNail: Joi.string().required(),
+  courseThumbNail: Joi.string(),
   coursePrice: Joi.string().required(),
-  introVideo: Joi.string().required(),
+  introVideo: Joi.string(),
   courseDescription: Joi.string().required(),
   rating: Joi.number().min(0).max(5).default(0),
   Features: Joi.object({
@@ -49,7 +49,7 @@ const courseSchema = Joi.object({
 
 const AccessSchema = Joi.object({
   courseId: Joi.string().required(),
-  userId: Joi.string().required(),
+  email: Joi.string().email().required(),
 });
 
 module.exports = { courseSchema,chapterSchema, reviewSchema ,AccessSchema};

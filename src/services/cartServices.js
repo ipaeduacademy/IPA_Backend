@@ -16,9 +16,10 @@ exports.getCart = async ( token ) => {
        let users=await db.collection('users').findOne(
          { _id: ObjectId.createFromHexString(payload.userId) },
         );
+        const cartItems = Array.isArray(users.cart) ? users.cart : [];
         // console.log(users)
         let result = await Promise.all(
-          users.cart.map(async (courseId) => {
+          cartItems.map(async (courseId) => {
             const course = await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(courseId) });
             return course;
           })
