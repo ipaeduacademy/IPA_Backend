@@ -29,9 +29,13 @@ exports.addReview = async (token, data) => {
     };
   }
 
+  const user = await db.collection('users').findOne({ _id: ObjectId.createFromHexString(payload.userId) });
+
+
   const review = {
     courseId: ObjectId.createFromHexString(courseId),
     userId: ObjectId.createFromHexString(payload.userId),
+    userName : user.name,
     rating,
     comment,
   };
@@ -57,5 +61,5 @@ exports.getReview = async (courseId) => {
     .sort({ createdAt: -1 })
     .toArray();
 
-  return { status: 200, data: { success: true, reviews } };
+  return { status: 200, data: { reviews } };
 };
