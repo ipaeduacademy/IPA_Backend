@@ -31,7 +31,6 @@ exports.getCourseById = async (req, res, next) => {
 
 exports.getVideos= async (req,res,next)=>{
   try {
-    console.log(req.params.id);
     const authHeader = req.headers.authorization; // Log the authorization header for debugging
     
     if (!authHeader?.startsWith('Bearer ')) {
@@ -41,15 +40,16 @@ exports.getVideos= async (req,res,next)=>{
     const token = authHeader.split(' ')[1];
     const courseData = await courseService.getCourseById(req.params.id);
     const chapters = await courseService.getChaptersByCourseId(req.params.id,token);
+    console.log(chapters);
     if(chapters.status===403){
       res.status(403).json(chapters.message)
     }
-    console.log(chapters)
+  
     const result = {
       courseData: courseData,
       chapters: chapters.data,
     };
-    console.log(result)
+
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -169,3 +169,39 @@ exports.giveAccess = async (req, res, next) => {
     next(err);
   }
 }
+
+exports.updateProgress = async (req, res,next) => {
+  try {
+    const authHeader = req.headers.authorization; // Log the authorization header for debugging
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const { courseId, moduleId, videoId } = req.body;
+    const response = await courseService.updateProgress(token, courseId, moduleId, videoId);
+    res.status(200).json(response);
+  } catch (error) {
+     next(error);
+  }
+};
+
+exports.getProgress = async (req, res,next) => {
+  try {
+    console.log(req.params.id);
+    const courseId  = req.params.id;
+    const authHeader = req.headers.authorization; // Log the authorization header for debugging
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    const progress = await courseService.getProgress(token, courseId);
+    res.status(200).json(progress);
+  } catch (error) {
+    next(error);
+  }
+};

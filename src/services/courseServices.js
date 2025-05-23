@@ -55,7 +55,7 @@ exports.getMycourses = async (token) => {
   let result = await Promise.all(
     users?.myCourses?.map(async (obj) => {
       const course = await db.collection('courses').findOne({ _id: ObjectId.createFromHexString(obj.courseId) });
-      course.date= obj.buyingDate;
+      course.date = obj.buyingDate;
       return course;
     })
   );
@@ -128,8 +128,9 @@ exports.getChaptersByCourseId = async (courseId, token) => {
   }
 
   const user = await db.collection('users').findOne(
-    { _id: new ObjectId(payload.userId) }
+    { _id: ObjectId.createFromHexString(payload.userId) }
   );
+
 
   if (!user) {
     return {
@@ -139,6 +140,7 @@ exports.getChaptersByCourseId = async (courseId, token) => {
   }
 
   const currentCourse = user.myCourses?.find(c => c.courseId === courseId);
+  console.log('courseId:', courseId);
 
   if (!currentCourse) {
     return {
@@ -159,7 +161,7 @@ exports.getChaptersByCourseId = async (courseId, token) => {
   }
 
   const chapters = await db.collection('chapters').find({
-    CourseId: new ObjectId(courseId)
+    CourseId: ObjectId.createFromHexString(courseId)
   }).toArray();
 
   return {
@@ -245,19 +247,60 @@ exports.deleteChapter = async (chapterId) => {
 exports.giveAccess = async (email, courseId) => {
 
   // Check if the user already has access to the course
-  const user = await db.collection('users').findOne({
-    email: email,
-    'myCourses.courseId': courseId
-  });
 
-  if (user) {
+  const user = await db.collection('users').findOne({
+    email: email
+  });
+  console.log(user);
+
+
+  if (user?.myCourses?.some(course => course.courseId === courseId)) {
     // User already has access to the course
     return { message: 'Access already granted' };
   }
 
+  const modules = db.collection('chapters').find({ CourseId: ObjectId.createFromHexString(courseId) }).toArray();
+
+  let modulesArray = [];
+  const modulesList = await modules;
+
+  for (const module of modulesList) {
+    let VideoProgress = [];
+    if (module.Videos) {
+      module.Videos.forEach((video) => {
+        VideoProgress.push({
+          videoId: video.videoId,
+          completed: false,
+        });
+      });
+    }
+
+    modulesArray.push({
+      courseId: courseId,
+      moduleId: module._id,
+      moduleName: module.ModuleName,
+      completed: false,
+      videoProgress: VideoProgress,
+    });
+  }
+
+  //create user progress
+  const userProgress = {
+    userId: user._id,
+    courseId: courseId,
+    completed: false,
+    moduleProgress: modulesArray,
+  };
+
+  let res = await db.collection('userProgress').insertOne(userProgress);
+  if (res.acknowledged) {
+    console.log('User progress created successfully');
+  } else {
+    console.error('Failed to create user progress');
+  }
   // Grant access to the course
   const result = await db.collection('users').updateOne(
-    {email: email},
+    { email: email },
     {
       $push: {
         myCourses: {
@@ -275,3 +318,118 @@ exports.giveAccess = async (email, courseId) => {
   return { message: 'Access granted' };
 };
 
+exports.getProgress = async (token, courseId) => {
+  let payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+
+  } catch (err) {
+    return { status: 400, data: { message: `Invalid or expired token ${err}` } };
+  }
+
+  console.log(courseId)
+  const progress = await db.collection('userProgress').findOne({
+    userId: ObjectId.createFromHexString(payload.userId), 
+    courseId:courseId,
+  });
+
+  if (!progress) throw new Error('Progress not found for this course');
+
+  return {
+    courseId: progress.courseId,
+    completed: progress.completed,
+    moduleProgress: progress.moduleProgress,
+  };
+};
+
+exports.updateProgress = async (token, courseId, moduleId, videoId) => {
+  let payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+
+  } catch (err) {
+    return { status: 400, data: { message: `Invalid or expired token ${err}` } };
+  }
+
+  console.log('Payload:', payload);
+  const user = await db.collection('users').findOne({ _id: ObjectId.createFromHexString(payload.userId) });
+
+  if (!user) {
+    const err = new Error('User not found');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  if (!videoId) {
+    const err = new Error('videoId is required');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  await db.collection('userProgress').updateOne(
+    {
+      userId: user._id,
+      courseId,
+      'moduleProgress.moduleId': ObjectId.createFromHexString(moduleId),
+    },
+    {
+      $set: {
+        'moduleProgress.$[mod].videoProgress.$[vid].completed': true,
+      },
+    },
+    {
+      arrayFilters: [
+        { 'mod.moduleId': ObjectId.createFromHexString(moduleId) },
+        { 'vid.videoId': videoId },
+      ],
+    }
+  );
+
+  // Check module completion
+  const progress = await db.collection('userProgress').findOne({
+    userId: user._id,
+    courseId,
+  });
+
+  const module = progress.moduleProgress.find(
+    (m) => m.moduleId.toString() === moduleId
+  );
+
+  const allVideosCompleted = module.videoProgress.every((v) => v.completed);
+  if (allVideosCompleted && !module.completed) {
+    await db.collection('userProgress').updateOne(
+      {
+        userId: user._id,
+        courseId,
+        'moduleProgress.moduleId': ObjectId.createFromHexString(moduleId),
+      },
+      {
+        $set: {
+          'moduleProgress.$.completed': true,
+        },
+      }
+    );
+  }
+
+  const updated = await db.collection('userProgress').findOne({
+    userId: user._id,
+    courseId,
+  });
+
+  const allModulesCompleted = updated.moduleProgress.every((m) => m.completed);
+  if (allModulesCompleted && !updated.completed) {
+    await db.collection('userProgress').updateOne(
+      {
+        userId: user._id,
+        courseId,
+      },
+      {
+        $set: {
+          completed: true,
+        },
+      }
+    );
+  }
+
+  return { message: 'Progress updated successfully' };
+};

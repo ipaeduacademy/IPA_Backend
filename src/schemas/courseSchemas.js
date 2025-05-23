@@ -52,4 +52,14 @@ const AccessSchema = Joi.object({
   email: Joi.string().email().required(),
 });
 
-module.exports = { courseSchema,chapterSchema, reviewSchema ,AccessSchema};
+const ProgressSchema = Joi.object({
+  courseId: Joi.string().required(),
+  moduleId: Joi.string().required(),
+  videoId: Joi.string().required(),
+});
+
+const getProgressSchema = Joi.object({
+  courseId: Joi.string().required(),
+});
+
+module.exports = { courseSchema,chapterSchema, reviewSchema ,AccessSchema,ProgressSchema,getProgressSchema};
