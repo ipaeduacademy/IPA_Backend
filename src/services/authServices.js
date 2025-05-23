@@ -6,6 +6,8 @@ const sendEmail = require('../utils/sendEmail');
 const users = db.collection('users');
 const { JWT_SECRET } = require('../configs/envConfigs');
 
+
+
 exports.signup = async ({ name, email, password }) => {
   const existingUser = await users.findOne({ email });
   if (existingUser) return { status: 409, data: { message: "User already exists" } };
@@ -36,19 +38,19 @@ exports.forgotPassword = async (email) => {
   const resetUrl = `http://localhost:5173/reset-password/${encodeURIComponent(token)}`;
   await sendEmail(email, "Reset Password", `Click here: ${resetUrl}`);
 
-  return { status: 200, data: { message: "Password reset link sent to email",url:resetUrl } };
+  return { status: 200, data: { message: "Password reset link sent to email", url: resetUrl } };
 };
 
-exports.resetPasswordService=async(token, newPassword)=> {
-  let payload; 
+exports.resetPasswordService = async (token, newPassword) => {
+  let payload;
   try {
-     payload = jwt.verify(token, JWT_SECRET);
-   } catch (err) {
-     return { status: 400, data: { message: `Invalid or expired token ${err}` } };
-   }
+    payload = jwt.verify(token, JWT_SECRET);
+  } catch (err) {
+    return { status: 400, data: { message: `Invalid or expired token ${err}` } };
+  }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  let res=await db.collection('users').updateOne(
+  let res = await db.collection('users').updateOne(
     { _id: ObjectId.createFromHexString(payload.userId) },
     { $set: { password: hashedPassword } }
   );

@@ -37,7 +37,6 @@ const courseSchema = Joi.object({
   courseTopic: Joi.string().required(),
   courseThumbNail: Joi.string(),
   coursePrice: Joi.string().required(),
-  introVideo: Joi.string(),
   courseDescription: Joi.string().required(),
   rating: Joi.number().min(0).max(5).default(0),
   Features: Joi.object({
