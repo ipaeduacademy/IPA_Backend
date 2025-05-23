@@ -128,7 +128,7 @@ exports.getChaptersByCourseId = async (courseId, token) => {
   }
 
   const user = await db.collection('users').findOne(
-    { _id: new ObjectId(payload.userId) }
+    { _id: ObjectId.createFromHexString(payload.userId) }
   );
 
   if (!user) {
@@ -159,7 +159,7 @@ exports.getChaptersByCourseId = async (courseId, token) => {
   }
 
   const chapters = await db.collection('chapters').find({
-    CourseId: new ObjectId(courseId)
+    CourseId: ObjectId.createFromHexString(courseId)
   }).toArray();
 
   return {
