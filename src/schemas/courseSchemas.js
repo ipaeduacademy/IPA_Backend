@@ -17,10 +17,10 @@ const quizSchema = Joi.object({
 const chapterSchema = Joi.object({
   CourseId: Joi.string().required(),
   ModuleName: Joi.string().required(),
-  ModuleDescription: Joi.string().required(),
-  ModuleDuration: Joi.string().required(),
-  Videos: Joi.array().items(videoSchema).required(),
-  quizes: Joi.array().items(quizSchema).required(),
+  ModuleDescription: Joi.string(),
+  ModuleDuration: Joi.string(),
+  Videos: Joi.array().items(videoSchema),
+  quizes: Joi.array().items(quizSchema),
 });
 
 const reviewSchema = Joi.object({
