@@ -4,8 +4,8 @@ const bunny = require("../services/bunnyServices");
 exports.upload = async (req, res) => {
   try {
     const { originalname, buffer } = req.file;
-    const { title,collectionId } = req.body;
-    const videoId = await bunny.uploadVideo(title, buffer, originalname, collectionId); // Log the video ID for debugging
+    const { collectionId } = req.body;
+    const videoId = await bunny.uploadVideo(buffer, originalname, collectionId); // Log the video ID for debugging
     if (!videoId) {
       return res.status(500).json({ error: "Failed to upload video" });
     }

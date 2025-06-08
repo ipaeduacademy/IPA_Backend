@@ -43,7 +43,6 @@ const deleteVideoController = asyncHandler(async (req, res) => {
     });
 });
 
-
 module.exports = {
     getVideoURLController,
     postVideoController,

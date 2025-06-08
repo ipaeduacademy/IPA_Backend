@@ -9,7 +9,7 @@ const STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
 const BUNNY_STORAGE_API_KEY = process.env.BUNNY_STORAGE_API_KEY;
 const CDN_URL = process.env.BUNNY_CDN_URL;
 
-exports.uploadVideo = async (title, fileBuffer, fileName,collectionId) => {
+exports.uploadVideo = async ( fileBuffer, fileName,collectionId) => {
  // Log the file name for debugging
  
   const createRes = await apiRequest(
@@ -21,7 +21,7 @@ exports.uploadVideo = async (title, fileBuffer, fileName,collectionId) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ 
-        title,
+        title : fileName,
         collectionId
        }),
     }

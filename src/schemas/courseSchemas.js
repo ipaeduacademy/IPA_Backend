@@ -9,8 +9,6 @@ const videoSchema = Joi.object({
 
 const quizSchema = Joi.object({
   quizName: Joi.string().required(),
-  quizDescription: Joi.string().required(),
-  quizDuration: Joi.string().required(),
   quizLink: Joi.string().uri().required(),
 });
 

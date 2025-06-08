@@ -209,9 +209,15 @@ exports.addChapter = async (chapterData) => {
 };
 
 exports.updateChapter = async (chapterId, updatedData) => {
+  const { CourseId, ...rest } = updatedData;
   const result = await db.collection('chapters').updateOne(
     { _id: ObjectId.createFromHexString(chapterId) },
-    { $set: updatedData }
+    {
+      $set: {
+        ...rest,
+        CourseId: ObjectId.createFromHexString(CourseId)
+      }
+    }
   );
 
   if (result.matchedCount === 0) {
@@ -329,8 +335,8 @@ exports.getProgress = async (token, courseId) => {
 
   console.log(courseId)
   const progress = await db.collection('userProgress').findOne({
-    userId: ObjectId.createFromHexString(payload.userId), 
-    courseId:courseId,
+    userId: ObjectId.createFromHexString(payload.userId),
+    courseId: courseId,
   });
 
   if (!progress) throw new Error('Progress not found for this course');
