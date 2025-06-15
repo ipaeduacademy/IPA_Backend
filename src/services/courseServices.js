@@ -63,7 +63,7 @@ exports.getMycourses = async (token) => {
   return result;
 
 
-}
+};
 
 exports.getAllCourses = async (page, limit = 8) => {
   console.log('Page:', page, 'Limit:', limit);
@@ -204,7 +204,6 @@ exports.addChapter = async (chapterData) => {
     ...chapterData,
     CourseId: ObjectId.createFromHexString(chapterData.CourseId),
   });
-
   return { message: 'Chapter added', chapterId: result.insertedId };
 };
 
@@ -230,7 +229,6 @@ exports.updateChapter = async (chapterId, updatedData) => {
   return { message: 'Chapter updated', modifiedCount: result.modifiedCount };
 };
 
-
 exports.deleteChapter = async (chapterId) => {
   const result = await db.collection('chapters').deleteOne({
     _id: ObjectId.createFromHexString(chapterId),
@@ -245,10 +243,6 @@ exports.deleteChapter = async (chapterId) => {
   }
   return { message: 'Chapter deleted', deletedCount: result.deletedCount };
 };
-
-
-
-
 
 exports.giveAccess = async (email, courseId) => {
 
@@ -352,11 +346,9 @@ exports.updateProgress = async (token, courseId, moduleId, videoId) => {
   let payload;
   try {
     payload = jwt.verify(token, JWT_SECRET);
-
   } catch (err) {
     return { status: 400, data: { message: `Invalid or expired token ${err}` } };
   }
-
   console.log('Payload:', payload);
   const user = await db.collection('users').findOne({ _id: ObjectId.createFromHexString(payload.userId) });
 
@@ -390,7 +382,6 @@ exports.updateProgress = async (token, courseId, moduleId, videoId) => {
       ],
     }
   );
-
   // Check module completion
   const progress = await db.collection('userProgress').findOne({
     userId: user._id,

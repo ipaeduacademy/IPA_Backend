@@ -21,3 +21,7 @@ exports.userProgressSchema = joi.object({
     }
   ]
 });
+
+exports.userStatusSchema = joi.object({
+  status: joi.string().valid("active", "suspended").required()
+});

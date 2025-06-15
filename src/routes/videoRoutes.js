@@ -21,5 +21,4 @@ router.route('/videos/:courseId/:chapterIndex')
 router.route('/videos/:videoId')
     .get(getVideoURLController);
     
-// router.post('/addVideos', validateBody(videoSchema), addVideoController);
 module.exports = router;

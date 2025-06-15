@@ -13,7 +13,7 @@ exports.signup = async ({ name, email, password }) => {
   if (existingUser) return { status: 409, data: { message: "User already exists" } };
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  await users.insertOne({ name, email, password: hashedPassword });
+  await users.insertOne({ name, email, password: hashedPassword, status : "active" });
 
   return { status: 201, data: { message: "User created successfully" } };
 };
@@ -59,4 +59,4 @@ exports.resetPasswordService = async (token, newPassword) => {
     return { status: 404, data: { message: "User not found" } };
   }
   return { message: 'Password updated' };
-}
+};

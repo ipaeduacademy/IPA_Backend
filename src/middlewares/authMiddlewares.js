@@ -20,15 +20,3 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
-
-
-// const authorize = (...roles) => (req, res, next) => {
-//     async (req, res, next) => {
-//         // check if user has permission to access route
-//         if (!roles.includes(req.user.role)) {
-//             return res.status(403).json({ message: 'You do not have permission to access this route' });
-//         }
-//         next();
-//     }
-// }
-

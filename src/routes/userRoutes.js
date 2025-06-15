@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { getUser} = require('../controllers/userController');
+const { getUser, getUsers, updateUserStatus } = require('../controllers/userController');
 const { authenticate } = require('../middlewares/authMiddlewares');
+const { validateBody } = require('../middlewares/validationMiddlewares');
+const { userStatusSchema } = require('../schemas/userSchemas');
 
 
 router.get('/getUser', authenticate, getUser);
+router.get('/getUsers', authenticate, getUsers);
+router.put('/updateUserStatus', authenticate, validateBody(userStatusSchema), updateUserStatus);
 
 module.exports = router;

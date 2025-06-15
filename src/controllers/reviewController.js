@@ -2,7 +2,6 @@ const reviewService = require('../services/reviewServices');
 
 exports.addReview = async (req, res, next) => {
   try {
-
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer')) {
       return res.status(401).json({ success: false, error: 'Missing or invalid Authorization header' });
