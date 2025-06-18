@@ -9,9 +9,9 @@ const STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
 const BUNNY_STORAGE_API_KEY = process.env.BUNNY_STORAGE_API_KEY;
 const CDN_URL = process.env.BUNNY_CDN_URL;
 
-exports.uploadVideo = async ( fileBuffer, fileName,collectionId) => {
- // Log the file name for debugging
- 
+exports.uploadVideo = async (fileBuffer, fileName, collectionId) => {
+  // Log the file name for debugging
+
   const createRes = await apiRequest(
     `https://video.bunnycdn.com/library/${VIDEO_LIBRARY_ID}/videos`,
     {
@@ -20,10 +20,10 @@ exports.uploadVideo = async ( fileBuffer, fileName,collectionId) => {
         AccessKey: BUNNY_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 
-        title : fileName,
+      body: JSON.stringify({
+        title: fileName,
         collectionId
-       }),
+      }),
     }
   );
 
@@ -53,7 +53,7 @@ exports.uploadVideo = async ( fileBuffer, fileName,collectionId) => {
     throw new Error("Failed to upload video to Bunny CDN.");
   }
   return videoId;
-  
+
 };
 
 
@@ -70,21 +70,21 @@ exports.generateSecureIframe = (videoId) => {
 };
 
 exports.uploadImageToBunny = async (file) => {
-  const uniqueFilename =`${Date.now()}-${file.originalname}`;
+  const uniqueFilename = `${Date.now()}-${file.originalname}`;
 
   const url = `https://sg.storage.bunnycdn.com/${STORAGE_ZONE}/${uniqueFilename}`;
   console.log(url); // Log the URL for debugging
   try {
-    let res=await apiRequest(url, {
+    let res = await apiRequest(url, {
       method: "PUT",
       headers: {
-        AccessKey:BUNNY_STORAGE_API_KEY,
+        AccessKey: BUNNY_STORAGE_API_KEY,
         "Content-Type": file.mimetype,
       },
       body: file.buffer,
     });
     console.log("Upload response:", res); // Log the response for debugging
-    
+
     return `${CDN_URL}/${uniqueFilename}`;
   } catch (err) {
     console.error("Upload failed:", err.message);

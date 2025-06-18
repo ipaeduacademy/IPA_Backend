@@ -83,3 +83,87 @@ exports.deleteMainSlide = async (id) => {
     };
   }
 };
+
+exports.addFacultySlide = async (name, designation, url) => {
+  const facultySlide = {
+    name: name,
+    designation: designation,
+    url: url,
+  };
+  try {
+    await db.collection('faculty').insertOne(facultySlide);
+    return {
+      status: 201,
+      data: { success: true, message: 'Faculty slide added successfully' },
+    };
+  } catch (error) {
+    console.error('Error adding faculty slide:', error);
+    return {
+      status: 500,
+      data: { success: false, error: 'Internal server error' },
+    };
+  }
+};
+
+exports.getFacultySlide = async () => {
+  try {
+    const slides = await db.collection('faculty').find().toArray();
+    return {
+      status: 200,
+      data: { success: true, slides },
+    };
+  } catch (error) {
+    console.error('Error fetching faculty slides:', error);
+    return {
+      status: 500,
+      data: { success: false, error: 'Internal server error' },
+    };
+  }
+};
+
+exports.updateFacultySlide = async (facultySlide, id) => {
+  try {
+    const result = await db.collection('faculty').updateOne(
+      { _id: ObjectId.createFromHexString(id) },
+      { $set: facultySlide }
+    );
+    if (result.modifiedCount === 0) {
+      return {
+        status: 404,
+        data: { success: false, message: 'Faculty slide not found' },
+      };
+    }
+    return {
+      status: 200,
+      data: { success: true, message: 'Faculty slide updated successfully' },
+    };
+  } catch (error) {
+    console.error('Error updating faculty slide:', error);
+    return {
+      status: 500,
+      data: { success: false, error: 'Internal server error' },
+    };
+  }
+};  
+
+exports.deleteFacultySlide = async (id) => {
+  try {
+    const result = await db.collection('faculty').deleteOne({ _id: ObjectId.createFromHexString(id) });
+    if (result.deletedCount === 0) {
+      return {
+        status: 404,
+        data: { success: false, message: 'Faculty slide not found' },
+      };
+    }
+    return {
+      status: 200,
+      data: { success: true, message: 'Faculty slide deleted successfully' },
+    };
+  } catch (error) {
+    console.error('Error deleting faculty slide:', error);
+    return {
+      status: 500,
+      data: { success: false, error: 'Internal server error' },
+    };
+  }
+};
