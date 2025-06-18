@@ -1,13 +1,13 @@
-const { getMainSlide, addMainSlide, updateMainSlide, deleteMainSlide} = require("../services/userServices");
+const { getMainSlide, addMainSlide, updateMainSlide, deleteMainSlide} = require("../services/contentServices");
 
 exports.addMainSlide = async (req, res) => {
-  const mainSlide = req.body;
-  if (!mainSlide.title || !mainSlide.imageUrl) {
+  const {title, url} = req.body;
+  if (!title || !url) {
     return res.status(400).json({ success: false, error: 'Invalid main slide data' });
   }
 
   try {
-    const response = await addMainSlide(mainSlide);
+    const response = await addMainSlide(title, url);
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error adding main slide:', error);
@@ -29,7 +29,7 @@ exports.updateMainSlide = async (req, res) => {
   const { id } = req.params;
   const mainSlide = req.body;
 
-  if (!id || !mainSlide.title || !mainSlide.imageUrl) {
+  if (!id || !mainSlide.title || !mainSlide.url) {
     return res.status(400).json({ success: false, error: 'Invalid main slide data' });
   }
 
